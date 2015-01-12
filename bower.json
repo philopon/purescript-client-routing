@@ -1,0 +1,20 @@
+{
+  "name": "purescript-director",
+  "version": "0.1.0",
+  "moduleType": [
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-strings": "~0.4.2",
+    "purescript-arrays": "~0.3.0"
+  },
+  "devDependencies": {
+    "director": "~1.2.5"
+  }
+}
