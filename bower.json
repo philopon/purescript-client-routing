@@ -1,6 +1,6 @@
 {
   "name": "purescript-director",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "moduleType": [
     "node"
   ],
@@ -8,7 +8,9 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "output"
+    "output",
+    "gulpfile.js",
+    "wrapper"
   ],
   "dependencies": {
     "purescript-strings": "~0.4.2",
