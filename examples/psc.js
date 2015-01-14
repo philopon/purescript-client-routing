@@ -7352,12 +7352,14 @@ function newRouter(director){
 function initRouter(d){
   return function InitRouterEff(){
     d.init('/');
+    return {};
   }
 };
     
 function configureImpl(r, opts){
   return function ConfigureEff(){
     r.configure({'html5history': opts.historyAPI, 'notfound': opts.notFound});
+    return {};
   }
 };
     
@@ -7372,12 +7374,14 @@ function unsafeCoerce(a){
 function paramImpl(d,n,m){
   return function ParamEff(){
     d.param(n,m);
+    return {};
   }
 };
     
 function routeImpl(d,p,f){
   return function RouteEff(){
     d.on(p,f);
+    return {};
   }
 };
     
@@ -7388,6 +7392,7 @@ function wrap0(f){
 function setRouteImpl(d, p){
   return function SetRouteEff(){
     d.setRoute(p);
+    return {};
   }
 };
     
