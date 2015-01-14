@@ -90,6 +90,7 @@ foreign import initRouter """
 function initRouter(d){
   return function InitRouterEff(){
     d.init('/');
+    return {};
   }
 }""" :: forall eff. Router -> EffRouting eff Unit
 
@@ -97,6 +98,7 @@ foreign import configureImpl """
 function configureImpl(r, opts){
   return function ConfigureEff(){
     r.configure({'html5history': opts.historyAPI, 'notfound': opts.notFound});
+    return {};
   }
 }""" :: forall eff opts. Fn2 Router {|opts} (EffRouting eff Unit)
 
@@ -182,6 +184,7 @@ foreign import paramImpl """
 function paramImpl(d,n,m){
   return function ParamEff(){
     d.param(n,m);
+    return {};
   }
 }""" :: forall eff. Fn3 Router String String (EffRouting eff Unit)
 
@@ -197,6 +200,7 @@ foreign import routeImpl """
 function routeImpl(d,p,f){
   return function RouteEff(){
     d.on(p,f);
+    return {};
   }
 }""" :: forall eff path fun. Fn3 Router path fun (EffRouting eff Unit)
 
@@ -213,6 +217,7 @@ foreign import setRouteImpl """
 function setRouteImpl(d, p){
   return function SetRouteEff(){
     d.setRoute(p);
+    return {};
   }
 }""" :: forall eff. Fn2 Router String (EffRouting eff Unit)
 
