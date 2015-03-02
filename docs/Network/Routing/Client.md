@@ -2,133 +2,327 @@
 
 ## Module Network.Routing.Client
 
-### Types
+#### `Routing`
 
+``` purescript
+data Routing :: !
+```
 
-    type EffRouting eff = Eff (routing :: Routing | eff)
 
+#### `EffRouting`
 
-    data Path n
+``` purescript
+type EffRouting eff = Eff (routing :: Routing | eff)
+```
 
 
-    newtype Pathes n
+#### `RoutingM`
 
+``` purescript
+newtype RoutingM eff a
+```
 
-    type Pathes0 = Pathes Z
 
+#### `functorRoutingM`
 
-    type Pathes1 = Pathes (S Z)
+``` purescript
+instance functorRoutingM :: Functor (RoutingM eff)
+```
 
 
-    type Pathes2 = Pathes (S (S Z))
+#### `applyRoutingM`
 
+``` purescript
+instance applyRoutingM :: Apply (RoutingM eff)
+```
 
-    type Pathes3 = Pathes (S (S (S Z)))
 
+#### `applicativeRoutingM`
 
-    data Router :: *
+``` purescript
+instance applicativeRoutingM :: Applicative (RoutingM eff)
+```
 
 
-    data Routing :: !
+#### `bindRoutingM`
 
+``` purescript
+instance bindRoutingM :: Bind (RoutingM eff)
+```
 
-    newtype RoutingM eff a
 
+#### `monadRoutingM`
 
-    data S n
+``` purescript
+instance monadRoutingM :: Monad (RoutingM eff)
+```
 
 
-    type SetRoute eff = String -> EffRouting eff Unit
+#### `useHistoryAPI`
 
+``` purescript
+useHistoryAPI :: RoutingM _ Unit
+```
 
-    data Z
 
+#### `notFound`
 
-### Type Class Instances
+``` purescript
+notFound :: forall eff. Callback eff Unit -> RoutingM eff Unit
+```
 
 
-    instance applicativeRoutingM :: Applicative (RoutingM eff)
+#### `SetRoute`
 
+``` purescript
+type SetRoute eff = String -> EffRouting eff Unit
+```
 
-    instance applyRoutingM :: Apply (RoutingM eff)
 
+#### `unsafeGlobalRoute`
 
-    instance bindRoutingM :: Bind (RoutingM eff)
+``` purescript
+unsafeGlobalRoute :: forall eff. RoutingM (routing :: Routing | eff) _ -> SetRoute eff
+```
 
 
-    instance functorRoutingM :: Functor (RoutingM eff)
+#### `runRouter`
 
+``` purescript
+runRouter :: forall eff. RoutingM (routing :: Routing | eff) _ -> EffRouting eff (SetRoute eff)
+```
 
-    instance monadRoutingM :: Monad (RoutingM eff)
 
+#### `Callback`
 
-    instance showPath :: Show (Path n)
+``` purescript
+newtype Callback eff a
+```
 
+#### `functorCallback`
 
-    instance showPathes :: Show (Pathes n)
+``` purescript
+instance functorCallback :: Functor (Callback eff)
+```
 
 
-### Values
+#### `applyCallback`
 
+``` purescript
+instance applyCallback :: Apply (Callback eff)
+```
 
-    (+/) :: forall n. Path (S Z) -> Pathes n -> Pathes (S n)
 
+#### `applicativeCallback`
 
-    (-/) :: forall n. Path Z -> Pathes n -> Pathes n
+``` purescript
+instance applicativeCallback :: Applicative (Callback eff)
+```
 
 
-    any :: Path (S Z)
+#### `bindCallback`
 
+``` purescript
+instance bindCallback :: Bind (Callback eff)
+```
 
-    empty :: Pathes0
 
+#### `monadCallback`
 
-    exact :: String -> Path Z
+``` purescript
+instance monadCallback :: Monad (Callback eff)
+```
 
 
-    getRouter :: forall eff. RoutingM eff Router
+#### `monadEffCallback`
 
+``` purescript
+instance monadEffCallback :: MonadEff eff (Callback eff)
+```
 
-    notFound :: forall eff. (SetRoute eff -> EffRouting eff _) -> RoutingM eff Unit
 
+#### `setRoute`
 
-    param :: forall eff n. Path n -> RoutingM eff (Path n)
+``` purescript
+setRoute :: String -> Callback _ Unit
+```
 
 
-    regex :: String -> Path (S Z)
+#### `Z`
 
+``` purescript
+data Z
+```
 
-    route0 :: forall eff. Pathes0 -> EffRouting eff _ -> RoutingM eff Unit
+path piecies
 
+#### `S`
 
-    route1 :: forall eff. Pathes1 -> (String -> EffRouting eff _) -> RoutingM eff Unit
+``` purescript
+data S n
+```
 
 
-    route2 :: forall eff. Pathes2 -> (String -> String -> EffRouting eff _) -> RoutingM eff Unit
+#### `Path`
 
+``` purescript
+data Path n
+```
 
-    route3 :: forall eff. Pathes3 -> (String -> String -> String -> EffRouting eff _) -> RoutingM eff Unit
 
+#### `showPath`
 
-    routes0 :: forall eff. Pathes0 -> [EffRouting eff _] -> RoutingM eff Unit
+``` purescript
+instance showPath :: Show (Path n)
+```
 
 
-    routes1 :: forall eff. Pathes1 -> [String -> EffRouting eff _] -> RoutingM eff Unit
+#### `Pathes`
 
+``` purescript
+newtype Pathes n
+```
 
-    routes2 :: forall eff. Pathes2 -> [String -> String -> EffRouting eff _] -> RoutingM eff Unit
 
+#### `showPathes`
 
-    routes3 :: forall eff. Pathes3 -> [String -> String -> String -> EffRouting eff _] -> RoutingM eff Unit
+``` purescript
+instance showPathes :: Show (Pathes n)
+```
 
 
-    runRouter :: forall eff. RoutingM eff _ -> EffRouting eff (SetRoute eff)
+#### `Pathes0`
 
+``` purescript
+type Pathes0 = Pathes Z
+```
 
-    unsafeGlobalRoute :: forall eff. RoutingM eff _ -> SetRoute eff
 
+#### `Pathes1`
 
-    useHistoryAPI :: RoutingM _ Unit
+``` purescript
+type Pathes1 = Pathes (S Z)
+```
+
+
+#### `Pathes2`
+
+``` purescript
+type Pathes2 = Pathes (S (S Z))
+```
+
+
+#### `Pathes3`
+
+``` purescript
+type Pathes3 = Pathes (S (S (S Z)))
+```
+
+
+#### `empty`
+
+``` purescript
+empty :: Pathes0
+```
+
+
+#### `exact`
+
+``` purescript
+exact :: String -> Path Z
+```
+
+
+#### `any`
+
+``` purescript
+any :: Path (S Z)
+```
+
+
+#### `regex`
+
+``` purescript
+regex :: String -> Path (S Z)
+```
+
+
+#### `(-/)`
+
+``` purescript
+(-/) :: forall n. Path Z -> Pathes n -> Pathes n
+```
+
+
+#### `(+/)`
+
+``` purescript
+(+/) :: forall n. Path (S Z) -> Pathes n -> Pathes (S n)
+```
+
+
+#### `param`
+
+``` purescript
+param :: forall eff n. Path n -> RoutingM eff (Path n)
+```
+
+
+#### `routes0`
+
+``` purescript
+routes0 :: forall eff. Pathes0 -> [Eff eff _] -> RoutingM eff Unit
+```
+
+
+#### `route0`
+
+``` purescript
+route0 :: forall eff. Pathes0 -> Eff eff _ -> RoutingM eff Unit
+```
+
+
+#### `routes1`
+
+``` purescript
+routes1 :: forall eff. Pathes1 -> [String -> Callback eff Unit] -> RoutingM eff Unit
+```
+
+
+#### `route1`
+
+``` purescript
+route1 :: forall eff. Pathes1 -> (String -> Callback eff Unit) -> RoutingM eff Unit
+```
+
+
+#### `routes2`
+
+``` purescript
+routes2 :: forall eff. Pathes2 -> [String -> String -> Callback eff Unit] -> RoutingM eff Unit
+```
+
+
+#### `route2`
+
+``` purescript
+route2 :: forall eff. Pathes2 -> (String -> String -> Callback eff Unit) -> RoutingM eff Unit
+```
+
+
+#### `routes3`
+
+``` purescript
+routes3 :: forall eff. Pathes3 -> [String -> String -> String -> Callback eff Unit] -> RoutingM eff Unit
+```
+
+
+#### `route3`
+
+``` purescript
+route3 :: forall eff. Pathes3 -> (String -> String -> String -> Callback eff Unit) -> RoutingM eff Unit
+```
+
 
 
 

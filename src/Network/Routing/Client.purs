@@ -1,19 +1,29 @@
 module Network.Routing.Client
-  ( EffRouting(), RoutingM(), Routing(), Router()
-  , runRouter, getRouter
+  ( EffRouting()
+
+  , RoutingM(), Routing()
+  , runRouter
   , unsafeGlobalRoute
+
+  , Callback()
+  , SetRoute()
+  , setRoute
+
   , Z(), S(), Path(), Pathes()
   , Pathes0(), Pathes1(), Pathes2(), Pathes3()
-  , SetRoute()
   , useHistoryAPI, notFound
+
   , empty, exact, any, regex
   , (-/), (+/)
   , param
+
   , routes0, routes1, routes2, routes3
   , route0, route1, route2, route3
   ) where
 
 import Control.Monad.Eff
+import Control.Monad.Eff.Class
+import Control.Monad.Eff.Unsafe
 
 import Data.String(joinWith)
 import Data.Array()
@@ -26,17 +36,18 @@ foreign import data Routing :: !
 foreign import data Dummy   :: *
 foreign import data Router  :: *
 
+-- routing Monad
 type RoutingState eff =
   { variableIndex  :: Number
   , routerInstance :: Router
   , historyAPI     :: Boolean
-  , notFound       :: Maybe (SetRoute eff -> EffRouting eff Unit)
+  , notFound       :: Maybe (Callback eff Unit)
   }
 
 type EffRouting eff = Eff (routing :: Routing | eff)
 
 newtype RoutingM eff a = RoutingM
-  (RoutingState eff -> EffRouting eff {a :: a, s :: RoutingState eff})
+  (RoutingState eff -> Eff eff {a :: a, s :: RoutingState eff})
 
 instance functorRoutingM :: Functor (RoutingM eff) where
   (<$>) f (RoutingM m) = RoutingM $ \s -> m s >>= \n -> return { a: f n.a, s: n.s }
@@ -58,11 +69,9 @@ instance bindRoutingM :: Bind (RoutingM eff) where
 
 instance monadRoutingM :: Monad (RoutingM eff)
 
+-- routing Monad methods
 getState :: forall eff. RoutingM eff (RoutingState eff)
 getState = RoutingM $ \s -> return {a: s, s: s}
-
-getRouter :: forall eff. RoutingM eff Router
-getRouter = getState >>= \s -> return s.routerInstance
 
 modifyState :: forall eff. (RoutingState eff -> RoutingState eff) -> RoutingM eff Unit
 modifyState f = RoutingM $ \s -> return {a: unit, s: f s}
@@ -70,13 +79,13 @@ modifyState f = RoutingM $ \s -> return {a: unit, s: f s}
 useHistoryAPI :: RoutingM _ Unit
 useHistoryAPI = modifyState (\s -> s{historyAPI = true})
 
-notFound :: forall eff. (SetRoute eff -> EffRouting eff _) -> RoutingM eff Unit
-notFound m = modifyState (\s -> s{notFound = Just $ \s -> void (m s)})
+notFound :: forall eff. Callback eff Unit -> RoutingM eff Unit
+notFound m = modifyState (\s -> s{notFound = Just m})
 
 succIndex :: forall eff. RoutingM eff Unit
 succIndex = modifyState (\s -> s {variableIndex = s.variableIndex + 1})
 
-liftRoutingM :: forall eff a. EffRouting eff a -> RoutingM eff a
+liftRoutingM :: forall eff a. Eff eff a -> RoutingM eff a
 liftRoutingM m = RoutingM $ \s -> m >>= \a -> return {a: a, s: s}
 
 foreign import newRouter """
@@ -84,7 +93,7 @@ function newRouter(director){
   return function NewRouterEff(){
     return director();
   }
-}""" :: forall eff. Director -> EffRouting eff Router
+}""" :: forall eff. Director -> Eff eff Router
 
 foreign import initRouter """
 function initRouter(d){
@@ -92,7 +101,7 @@ function initRouter(d){
     d.init('/');
     return {};
   }
-}""" :: forall eff. Router -> EffRouting eff Unit
+}""" :: forall eff. Router -> Eff eff Unit
 
 foreign import configureImpl """
 function configureImpl(r, opts){
@@ -100,29 +109,71 @@ function configureImpl(r, opts){
     r.configure({'html5history': opts.historyAPI, 'notfound': opts.notFound});
     return {};
   }
-}""" :: forall eff opts. Fn2 Router {|opts} (EffRouting eff Unit)
+}""" :: forall eff opts. Fn2 Router {|opts} (Eff eff Unit)
 
-type SetRoute eff = String -> EffRouting eff Unit
+type SetRoute  eff = String -> EffRouting eff Unit
+type SetRoute_ eff = String -> Eff eff Unit
 
 foreign import globalize """
 function globalize(m){
   return m();
 }""" :: forall eff a. Eff eff a -> a
 
-unsafeGlobalRoute :: forall eff. RoutingM eff _ -> SetRoute eff
+unsafeGlobalRoute :: forall eff. RoutingM (routing :: Routing | eff) _ -> SetRoute eff
 unsafeGlobalRoute m = globalize (runRouter m)
 
-runRouter :: forall eff. RoutingM eff _ -> EffRouting eff (SetRoute eff)
+runRouter :: forall eff. RoutingM (routing :: Routing | eff) _ -> EffRouting eff (SetRoute eff)
 runRouter (RoutingM m) = do
   r <- newRouter director
   o <- m {variableIndex: 0, routerInstance: r, historyAPI: false, notFound: Nothing}
   let s = o.s
   case s.notFound of
        Nothing -> runFn2 configureImpl r {historyAPI: s.historyAPI}
-       Just nf -> runFn2 configureImpl r {historyAPI: s.historyAPI, notFound: nf (\s -> runFn2 setRouteImpl r s)}
+       Just nf -> runFn2 configureImpl r {historyAPI: s.historyAPI, notFound: runCallback nf (\s -> runFn2 setRouteImpl r s)}
   initRouter r
   return $ \s -> runFn2 setRouteImpl r s
 
+-- Callback Monad
+newtype Callback eff a = Callback (SetRoute_ eff -> Eff eff a)
+
+runCallback :: forall eff a. Callback eff a -> SetRoute_ eff -> Eff eff a
+runCallback (Callback m) = m
+
+instance functorCallback :: Functor (Callback eff) where
+  (<$>) f (Callback m) = Callback $ \s -> m s >>= \n -> return (f n)
+
+instance applyCallback :: Apply (Callback eff) where
+  (<*>) (Callback mf) (Callback ma) = Callback $ \s -> do
+    f <- mf s
+    a <- ma s
+    return (f a)
+
+instance applicativeCallback :: Applicative (Callback eff) where
+  pure a = Callback $ \_ -> return a
+
+instance bindCallback :: Bind (Callback eff) where
+  (>>=) (Callback m) k = Callback $ \s -> do
+    a <- m s
+    Callback r <- return $ k a
+    r s
+
+instance monadCallback :: Monad (Callback eff)
+
+instance monadEffCallback :: MonadEff eff (Callback eff) where
+  liftEff m = Callback $ \_ -> m
+
+foreign import setRouteImpl """
+function setRouteImpl(d, p){
+  return function SetRouteEff(){
+    d.setRoute(p);
+    return {};
+  }
+}""" :: forall eff. Fn2 Router String (Eff eff Unit)
+
+setRoute :: String -> Callback _ Unit
+setRoute route = Callback $ \set -> set route
+
+-- | path piecies
 data Z
 data S n
 
@@ -186,7 +237,7 @@ function paramImpl(d,n,m){
     d.param(n,m);
     return {};
   }
-}""" :: forall eff. Fn3 Router String String (EffRouting eff Unit)
+}""" :: forall eff. Fn3 Router String String (Eff eff Unit)
 
 param :: forall eff n. Path n -> RoutingM eff (Path n)
 param v = do
@@ -202,7 +253,7 @@ function routeImpl(d,p,f){
     d.on(p,f);
     return {};
   }
-}""" :: forall eff path fun. Fn3 Router path fun (EffRouting eff Unit)
+}""" :: forall eff path fun. Fn3 Router path fun (Eff eff Unit)
 
 route p f = do
   s <- getState
@@ -211,51 +262,67 @@ route p f = do
 foreign import wrap0 """
 function wrap0(f){
   return function Wrap0(){return f();}
-}""" :: forall eff z. EffRouting eff z -> Dummy
+}""" :: forall eff z. Eff eff z -> Dummy
 
-foreign import setRouteImpl """
-function setRouteImpl(d, p){
-  return function SetRouteEff(){
-    d.setRoute(p);
-    return {};
-  }
-}""" :: forall eff. Fn2 Router String (EffRouting eff Unit)
-
-routes0 :: forall eff. Pathes0 -> [EffRouting eff _] -> RoutingM eff Unit
+routes0 :: forall eff. Pathes0 -> [Eff eff _] -> RoutingM eff Unit
 routes0 p f = route p (wrap0 <$> f)
 
-route0 :: forall eff. Pathes0 -> EffRouting eff _ -> RoutingM eff Unit
+route0 :: forall eff. Pathes0 -> Eff eff _ -> RoutingM eff Unit
 route0 p f = routes0 p [f]
 
 foreign import wrap1 """
 function wrap1(f){
-  return function Wrap1(a){return f(a)();}
-}""" :: forall eff z. (String -> EffRouting eff z) -> Dummy
+  return function Wrap1(a){
+    var _this = this;
+    var setRoute = function(route){
+      return function(){
+        _this.setRoute(route);
+      }
+    };
+    return f(setRoute)(a)();
+  }
+}""" :: forall eff z. (SetRoute_ eff -> String -> Eff eff z) -> Dummy
 
-routes1 :: forall eff. Pathes1 -> [String -> EffRouting eff _] -> RoutingM eff Unit
-routes1 p f = route p (wrap1 <$> f)
+routes1 :: forall eff. Pathes1 -> [String -> Callback eff Unit] -> RoutingM eff Unit
+routes1 p f = route p ((\r -> wrap1 $ \set p1 -> runCallback (r p1) set) <$> f)
 
-route1 :: forall eff. Pathes1 -> (String -> EffRouting eff _) -> RoutingM eff Unit
+route1 :: forall eff. Pathes1 -> (String -> Callback eff Unit) -> RoutingM eff Unit
 route1 p f = routes1 p [f]
 
 foreign import wrap2 """
 function wrap2(f){
-  return function Wrap2(a,b){return f(a,b)();}
-}""" :: forall eff z. (Fn2 String String (EffRouting eff z)) -> Dummy
+  return function Wrap2(a,b){
+    var _this = this;
+    var setRoute = function(route){
+      return function(){
+        _this.setRoute(route);
+      }
+    };
+    return f(setRoute)(a)(b)();
+  }
+}""" :: forall eff z. (SetRoute_ eff -> String -> String -> Eff eff z) -> Dummy
 
-routes2 :: forall eff. Pathes2 -> [String -> String -> EffRouting eff _] -> RoutingM eff Unit
-routes2 p f = route p ((\a -> wrap2 $ mkFn2 a) <$> f)
+routes2 :: forall eff. Pathes2 -> [String -> String -> Callback eff Unit] -> RoutingM eff Unit
+routes2 p f = route p ((\r -> wrap2 $ \set p1 p2 -> runCallback (r p1 p2) set) <$> f)
 
-route2 :: forall eff. Pathes2 -> (String -> String -> EffRouting eff _) -> RoutingM eff Unit
+route2 :: forall eff. Pathes2 -> (String -> String -> Callback eff Unit) -> RoutingM eff Unit
 route2 p f = routes2 p [f]
 
 foreign import wrap3 """
 function wrap3(f){
-  return function Wrap3(a,b,c){return f(a,b,c)();}
-}""" :: forall eff z. (Fn3 String String String (EffRouting eff z)) -> Dummy
+  return function Wrap3(a,b,c){
+   var _this = this;
+    var setRoute = function(route){
+      return function(){
+        _this.setRoute(route);
+      }
+    };
+    return f(setRoute)(a)(b)(c)();
+  }
+}""" :: forall eff z. (SetRoute_ eff -> String -> String -> String -> Eff eff z) -> Dummy
 
-routes3 :: forall eff. Pathes3 -> [String -> String -> String -> EffRouting eff _] -> RoutingM eff Unit
-routes3 p f = route p ((\a -> wrap3 $ mkFn3 a) <$> f)
+routes3 :: forall eff. Pathes3 -> [String -> String -> String -> Callback eff Unit] -> RoutingM eff Unit
+routes3 p f = route p ((\r -> wrap3 $ \set p1 p2 p3 -> runCallback (r p1 p2 p3) set) <$> f)
 
-route3 :: forall eff. Pathes3 -> (String -> String -> String -> EffRouting eff _) -> RoutingM eff Unit
+route3 :: forall eff. Pathes3 -> (String -> String -> String -> Callback eff Unit) -> RoutingM eff Unit
 route3 p f = routes3 p [f]
