@@ -22,6 +22,7 @@ type EffRouting eff = Eff (routing :: Routing | eff)
 newtype RoutingM eff a
 ```
 
+Routing Monad
 
 #### `functorRoutingM`
 
@@ -64,6 +65,7 @@ instance monadRoutingM :: Monad (RoutingM eff)
 useHistoryAPI :: RoutingM _ Unit
 ```
 
+use HTML5 history api instead of location.hash encode
 
 #### `notFound`
 
@@ -71,6 +73,7 @@ useHistoryAPI :: RoutingM _ Unit
 notFound :: forall eff. Callback eff Unit -> RoutingM eff Unit
 ```
 
+set handler for route not match
 
 #### `SetRoute`
 
@@ -92,12 +95,15 @@ unsafeGlobalRoute :: forall eff. RoutingM (routing :: Routing | eff) _ -> SetRou
 runRouter :: forall eff. RoutingM (routing :: Routing | eff) _ -> EffRouting eff (SetRoute eff)
 ```
 
+run Router Monad
 
 #### `Callback`
 
 ``` purescript
 newtype Callback eff a
 ```
+
+Callback Monad
 
 #### `functorCallback`
 
@@ -147,14 +153,14 @@ instance monadEffCallback :: MonadEff eff (Callback eff)
 setRoute :: String -> Callback _ Unit
 ```
 
+set route in Callback monad.
+convenient to redirect.
 
 #### `Z`
 
 ``` purescript
 data Z
 ```
-
-path piecies
 
 #### `S`
 
@@ -169,6 +175,7 @@ data S n
 data Path n
 ```
 
+Path data type
 
 #### `showPath`
 
@@ -225,6 +232,7 @@ type Pathes3 = Pathes (S (S (S Z)))
 empty :: Pathes0
 ```
 
+empty path
 
 #### `exact`
 
@@ -232,6 +240,7 @@ empty :: Pathes0
 exact :: String -> Path Z
 ```
 
+add exact match for path piece
 
 #### `any`
 
@@ -239,6 +248,7 @@ exact :: String -> Path Z
 any :: Path (S Z)
 ```
 
+get any parameter from path piece
 
 #### `regex`
 
@@ -246,6 +256,7 @@ any :: Path (S Z)
 regex :: String -> Path (S Z)
 ```
 
+get regexed parameter from path piece
 
 #### `(-/)`
 
@@ -253,6 +264,7 @@ regex :: String -> Path (S Z)
 (-/) :: forall n. Path Z -> Pathes n -> Pathes n
 ```
 
+add path piece without parameter to pathes
 
 #### `(+/)`
 
@@ -260,6 +272,7 @@ regex :: String -> Path (S Z)
 (+/) :: forall n. Path (S Z) -> Pathes n -> Pathes (S n)
 ```
 
+add path piece with parameter to pathes
 
 #### `param`
 
@@ -267,6 +280,7 @@ regex :: String -> Path (S Z)
 param :: forall eff n. Path n -> RoutingM eff (Path n)
 ```
 
+create parameter in pathes
 
 #### `routes0`
 
@@ -274,6 +288,7 @@ param :: forall eff n. Path n -> RoutingM eff (Path n)
 routes0 :: forall eff. Pathes0 -> [Eff eff _] -> RoutingM eff Unit
 ```
 
+add routes which have no parameter
 
 #### `route0`
 
@@ -281,6 +296,7 @@ routes0 :: forall eff. Pathes0 -> [Eff eff _] -> RoutingM eff Unit
 route0 :: forall eff. Pathes0 -> Eff eff _ -> RoutingM eff Unit
 ```
 
+add route which have no parameter
 
 #### `routes1`
 
@@ -288,6 +304,7 @@ route0 :: forall eff. Pathes0 -> Eff eff _ -> RoutingM eff Unit
 routes1 :: forall eff. Pathes1 -> [String -> Callback eff Unit] -> RoutingM eff Unit
 ```
 
+add routes which have 1 parameter
 
 #### `route1`
 
@@ -295,6 +312,7 @@ routes1 :: forall eff. Pathes1 -> [String -> Callback eff Unit] -> RoutingM eff 
 route1 :: forall eff. Pathes1 -> (String -> Callback eff Unit) -> RoutingM eff Unit
 ```
 
+add route which have 1 parameter
 
 #### `routes2`
 
@@ -302,6 +320,7 @@ route1 :: forall eff. Pathes1 -> (String -> Callback eff Unit) -> RoutingM eff U
 routes2 :: forall eff. Pathes2 -> [String -> String -> Callback eff Unit] -> RoutingM eff Unit
 ```
 
+add routes which have 2 parameters
 
 #### `route2`
 
@@ -309,6 +328,7 @@ routes2 :: forall eff. Pathes2 -> [String -> String -> Callback eff Unit] -> Rou
 route2 :: forall eff. Pathes2 -> (String -> String -> Callback eff Unit) -> RoutingM eff Unit
 ```
 
+add route which have 2 parameters
 
 #### `routes3`
 
@@ -316,6 +336,7 @@ route2 :: forall eff. Pathes2 -> (String -> String -> Callback eff Unit) -> Rout
 routes3 :: forall eff. Pathes3 -> [String -> String -> String -> Callback eff Unit] -> RoutingM eff Unit
 ```
 
+add routes which have 3 parameters
 
 #### `route3`
 
@@ -323,6 +344,7 @@ routes3 :: forall eff. Pathes3 -> [String -> String -> String -> Callback eff Un
 route3 :: forall eff. Pathes3 -> (String -> String -> String -> Callback eff Unit) -> RoutingM eff Unit
 ```
 
+add route which have 3 parameters
 
 
 

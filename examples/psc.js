@@ -8701,6 +8701,10 @@ function wrap3(f){
     return f(setRoute)(a)(b)(c)();
   }
 };
+    
+    /**
+     *  | Path data type
+     */
     var Exact = (function () {
         function Exact(value0) {
             this.value0 = value0;
@@ -8710,6 +8714,10 @@ function wrap3(f){
         };
         return Exact;
     })();
+    
+    /**
+     *  | Path data type
+     */
     var Regex = (function () {
         function Regex(value0) {
             this.value0 = value0;
@@ -8719,6 +8727,10 @@ function wrap3(f){
         };
         return Regex;
     })();
+    
+    /**
+     *  | Path data type
+     */
     var Param = (function () {
         function Param(value0) {
             this.value0 = value0;
@@ -8728,6 +8740,10 @@ function wrap3(f){
         };
         return Param;
     })();
+    
+    /**
+     *  | Path data type
+     */
     var Any = (function () {
         function Any() {
 
@@ -8740,24 +8756,41 @@ function wrap3(f){
     };
     
     /**
-     *  Callback Monad
+     *  | Callback Monad
      */
     var Callback = function (x) {
         return x;
     };
+    
+    /**
+     *  | Routing Monad
+     */
     var RoutingM = function (x) {
         return x;
     };
+    
+    /**
+     *  | add path piece without parameter to pathes
+     */
     var $minus$div = function (_471) {
         return function (_472) {
             return Prelude[":"](unsafeCoerce(_471))(_472);
         };
     };
+    
+    /**
+     *  | add path piece with parameter to pathes
+     */
     var $plus$div = function (_473) {
         return function (_474) {
             return Prelude[":"](unsafeCoerce(_473))(unsafeCoerce(_474));
         };
     };
+    
+    /**
+     *  | set route in Callback monad.
+     *  | convenient to redirect.
+     */
     var setRoute = function (route_1) {
         return Callback(function (set) {
             return set(route_1);
@@ -8766,6 +8799,10 @@ function wrap3(f){
     var runCallback = function (_468) {
         return _468;
     };
+    
+    /**
+     *  | run Router Monad
+     */
     var runRouter = function (_467) {
         return function __do() {
             var _30 = newRouter(Network_Routing_Client_Foreign.director)();
@@ -8800,6 +8837,10 @@ function wrap3(f){
     var unsafeGlobalRoute = function (m) {
         return globalize(runRouter(m));
     };
+    
+    /**
+     *  | get regexed parameter from path piece
+     */
     var regex = Regex.create;
     var pathToString = function (_469) {
         if (_469 instanceof Exact) {
@@ -8829,6 +8870,10 @@ function wrap3(f){
             });
         });
     };
+    
+    /**
+     *  | set handler for route not match
+     */
     var notFound = function (m) {
         return modifyState(function (s) {
             var _1331 = {};
@@ -8851,6 +8896,10 @@ function wrap3(f){
         _1333.variableIndex = s.variableIndex + 1;
         return _1333;
     });
+    
+    /**
+     *  | use HTML5 history api instead of location.hash encode
+     */
     var useHistoryAPI = modifyState(function (s) {
         var _1335 = {};
         for (var _1336 in s) {
@@ -8905,7 +8954,15 @@ function wrap3(f){
             });
         };
     });
+    
+    /**
+     *  | add exact match for path piece
+     */
     var exact = Exact.create;
+    
+    /**
+     *  | empty path
+     */
     var empty = [  ];
     var applyRoutingM = new Prelude.Apply(function (_477) {
         return function (_478) {
@@ -8943,16 +9000,28 @@ function wrap3(f){
             });
         };
     };
+    
+    /**
+     *  | add routes which have no parameter
+     */
     var routes0 = function (p) {
         return function (f) {
             return route(p)(Prelude["<$>"](Data_Array.functorArray)(wrap0)(f));
         };
     };
+    
+    /**
+     *  | add route which have no parameter
+     */
     var route0 = function (p) {
         return function (f) {
             return routes0(p)([ f ]);
         };
     };
+    
+    /**
+     *  | add routes which have 1 parameter
+     */
     var routes1 = function (p) {
         return function (f) {
             return route(p)(Prelude["<$>"](Data_Array.functorArray)(function (r) {
@@ -8964,11 +9033,19 @@ function wrap3(f){
             })(f));
         };
     };
+    
+    /**
+     *  | add route which have 1 parameter
+     */
     var route1 = function (p) {
         return function (f) {
             return routes1(p)([ f ]);
         };
     };
+    
+    /**
+     *  | add routes which have 2 parameters
+     */
     var routes2 = function (p) {
         return function (f) {
             return route(p)(Prelude["<$>"](Data_Array.functorArray)(function (r) {
@@ -8982,11 +9059,19 @@ function wrap3(f){
             })(f));
         };
     };
+    
+    /**
+     *  | add route which have 2 parameters
+     */
     var route2 = function (p) {
         return function (f) {
             return routes2(p)([ f ]);
         };
     };
+    
+    /**
+     *  | add routes which have 3 parameters
+     */
     var routes3 = function (p) {
         return function (f) {
             return route(p)(Prelude["<$>"](Data_Array.functorArray)(function (r) {
@@ -9002,6 +9087,10 @@ function wrap3(f){
             })(f));
         };
     };
+    
+    /**
+     *  | add route which have 3 parameters
+     */
     var route3 = function (p) {
         return function (f) {
             return routes3(p)([ f ]);
@@ -9048,6 +9137,10 @@ function wrap3(f){
     }, function () {
         return bindRoutingM;
     });
+    
+    /**
+     *  | create parameter in pathes
+     */
     var param = function (v) {
         return Prelude[">>="](bindRoutingM)(getState)(function (_35) {
             var n = ":v" + Prelude.show(Prelude.showNumber)(_35.variableIndex);
@@ -9077,6 +9170,10 @@ function wrap3(f){
             return m;
         });
     });
+    
+    /**
+     *  | get any parameter from path piece
+     */
     var any = Any.value;
     return {
         route3: route3, 
