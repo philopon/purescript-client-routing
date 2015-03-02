@@ -7,13 +7,6 @@ var path       = require('path');
 var bowerPurs = 'bower_components/purescript-*/src/**/*.purs';
 var sources = [bowerPurs, 'src/**/*.purs'];
 
-
-gulp.task('pscMake', function(){
-  return gulp
-    .src(sources)
-    .pipe(purescript.pscMake());
-});
-
 gulp.task('dotPsci', function(){
   return gulp
     .src(sources)
@@ -41,4 +34,4 @@ gulp.task('examples', function(){
     .pipe(gulp.dest("examples/"));
 });
 
-gulp.task('default', ['pscMake', 'dotPsci', 'pscDocs', 'examples']);
+gulp.task('default', ['dotPsci', 'pscDocs', 'examples']);
