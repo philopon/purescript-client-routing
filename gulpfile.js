@@ -1,11 +1,16 @@
 var gulp       = require('gulp');
 var purescript = require('gulp-purescript');
+var shell      = require('gulp-shell');
 var foreach    = require('gulp-foreach');
 
 var path       = require('path');
 
 var bowerPurs = 'bower_components/purescript-*/src/**/*.purs';
 var sources = [bowerPurs, 'src/**/*.purs'];
+
+gulp.task('wrapper', shell.task([
+  './wrapper/generate.sh'
+]));
 
 gulp.task('dotPsci', function(){
   return gulp
@@ -34,4 +39,4 @@ gulp.task('examples', function(){
     .pipe(gulp.dest("examples/"));
 });
 
-gulp.task('default', ['dotPsci', 'pscDocs', 'examples']);
+gulp.task('default', ['wrapper', 'dotPsci', 'pscDocs', 'examples']);
