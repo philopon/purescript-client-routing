@@ -30,7 +30,7 @@ gulp.task('pscDocs', function(){
 gulp.task('examples', function(){
   return gulp
     .src(sources.concat('examples/Main.purs'))
-    .pipe(purescript.psc({main: "Main", module: "Main"}))
+    .pipe(purescript.psc({main: "Main", modules: ["Main"]}))
     .pipe(gulp.dest("examples/"));
 });
 
