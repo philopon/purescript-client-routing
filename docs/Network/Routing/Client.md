@@ -89,6 +89,13 @@ unsafeGlobalRoute :: forall eff. RoutingM (routing :: Routing | eff) _ -> SetRou
 ```
 
 
+#### `unsafeGlobalRoute'`
+
+``` purescript
+unsafeGlobalRoute' :: forall eff. RoutingM (routing :: Routing | eff) _ -> { init :: EffRouting eff Unit, setRoute :: SetRoute eff }
+```
+
+
 #### `runRouter`
 
 ``` purescript
@@ -96,6 +103,14 @@ runRouter :: forall eff. RoutingM (routing :: Routing | eff) _ -> EffRouting eff
 ```
 
 run Router Monad
+
+#### `runRouter'`
+
+``` purescript
+runRouter' :: forall eff. RoutingM (routing :: Routing | eff) _ -> EffRouting eff { init :: EffRouting eff Unit, setRoute :: SetRoute eff }
+```
+
+run Router Monad without initialize
 
 #### `Callback`
 
