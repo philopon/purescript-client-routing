@@ -1,6 +1,6 @@
 {
-  "name": "purescript-director",
-  "version": "0.2.0",
+  "name": "purescript-client-routing",
+  "version": "0.3.0",
   "moduleType": [
     "node"
   ],
@@ -18,6 +18,6 @@
     "purescript-monad-eff": "~0.1.0"
   },
   "devDependencies": {
-    "director": "~1.2.5"
+    "director": "~1.2.8"
   }
 }

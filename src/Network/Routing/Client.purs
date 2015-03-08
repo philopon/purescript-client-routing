@@ -2,8 +2,8 @@ module Network.Routing.Client
   ( EffRouting()
 
   , RoutingM(), Routing()
-  , runRouter
-  , unsafeGlobalRoute
+  , runRouter, runRouter'
+  , unsafeGlobalRoute, unsafeGlobalRoute'
 
   , Callback()
   , SetRoute()
@@ -125,17 +125,28 @@ function globalize(m){
 unsafeGlobalRoute :: forall eff. RoutingM (routing :: Routing | eff) _ -> SetRoute eff
 unsafeGlobalRoute m = globalize (runRouter m)
 
+unsafeGlobalRoute' :: forall eff. RoutingM (routing :: Routing | eff) _ -> { setRoute :: SetRoute eff, init :: EffRouting eff Unit }
+unsafeGlobalRoute' m = globalize (runRouter' m)
+
 -- | run Router Monad
 runRouter :: forall eff. RoutingM (routing :: Routing | eff) _ -> EffRouting eff (SetRoute eff)
-runRouter (RoutingM m) = do
+runRouter m = do
+  r <- runRouter' m
+  r.init
+  return r.setRoute
+
+-- | run Router Monad without initialize
+runRouter' :: forall eff. RoutingM (routing :: Routing | eff) _ -> EffRouting eff { setRoute :: SetRoute eff, init :: EffRouting eff Unit }
+runRouter' (RoutingM m) = do
   r <- newRouter director
   o <- m {variableIndex: 0, routerInstance: r, historyAPI: false, notFound: Nothing}
   let s = o.s
   case s.notFound of
        Nothing -> runFn2 configureImpl r {historyAPI: s.historyAPI}
        Just nf -> runFn2 configureImpl r {historyAPI: s.historyAPI, notFound: runCallback nf (\s -> runFn2 setRouteImpl r s)}
-  initRouter r
-  return $ \s -> runFn2 setRouteImpl r s
+  return { setRoute: \s -> runFn2 setRouteImpl r s
+         , init: initRouter r
+         }
 
 -- | Callback Monad
 newtype Callback eff a = Callback (SetRoute_ eff -> Eff eff a)
