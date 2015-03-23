@@ -308,7 +308,7 @@ create parameter in pathes
 #### `routes0`
 
 ``` purescript
-routes0 :: forall eff. Pathes0 -> [Eff eff _] -> RoutingM eff Unit
+routes0 :: forall eff. Pathes0 -> [Callback eff Unit] -> RoutingM eff Unit
 ```
 
 add routes which have no parameter
@@ -316,7 +316,7 @@ add routes which have no parameter
 #### `route0`
 
 ``` purescript
-route0 :: forall eff. Pathes0 -> Eff eff _ -> RoutingM eff Unit
+route0 :: forall eff. Pathes0 -> Callback eff Unit -> RoutingM eff Unit
 ```
 
 add route which have no parameter
