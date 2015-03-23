@@ -52,13 +52,6 @@ PS.Prelude = (function () {
     var Unit = function (x) {
         return x;
     };
-    var Semigroupoid = function ($less$less$less) {
-        this["<<<"] = $less$less$less;
-    };
-    var Category = function (__superclass_Prelude$dotSemigroupoid_0, id) {
-        this["__superclass_Prelude.Semigroupoid_0"] = __superclass_Prelude$dotSemigroupoid_0;
-        this.id = id;
-    };
     var Show = function (show) {
         this.show = show;
     };
@@ -127,13 +120,6 @@ PS.Prelude = (function () {
         return dict.show;
     };
     var semiringNumber = new Semiring(numMul, numAdd, 1, 0);
-    var semigroupoidArr = new Semigroupoid(function (f) {
-        return function (g) {
-            return function (x) {
-                return f(g(x));
-            };
-        };
-    });
     var semigroupString = new Semigroup(concatString);
     var pure = function (dict) {
         return dict.pure;
@@ -148,15 +134,7 @@ PS.Prelude = (function () {
             };
         };
     };
-    var id = function (dict) {
-        return dict.id;
-    };
     var eqString = new Eq(refIneq, refEq);
-    var categoryArr = new Category(function () {
-        return semigroupoidArr;
-    }, function (x) {
-        return x;
-    });
     var ap = function (__dict_Monad_16) {
         return function (f) {
             return function (a) {
@@ -179,8 +157,6 @@ PS.Prelude = (function () {
         Apply: Apply, 
         Functor: Functor, 
         Show: Show, 
-        Category: Category, 
-        Semigroupoid: Semigroupoid, 
         unit: unit, 
         "++": $plus$plus, 
         "<>": $less$greater, 
@@ -197,9 +173,6 @@ PS.Prelude = (function () {
         cons: cons, 
         ":": $colon, 
         "$": $dollar, 
-        id: id, 
-        semigroupoidArr: semigroupoidArr, 
-        categoryArr: categoryArr, 
         showNumber: showNumber, 
         semiringNumber: semiringNumber, 
         eqString: eqString, 
@@ -1096,16 +1069,12 @@ PS.Control_Monad_Eff_Class = (function () {
         this["__superclass_Prelude.Monad_0"] = __superclass_Prelude$dotMonad_0;
         this.liftEff = liftEff;
     };
-    var monadEffEff = new MonadEff(function () {
-        return Control_Monad_Eff.monadEff;
-    }, Prelude.id(Prelude.categoryArr));
     var liftEff = function (dict) {
         return dict.liftEff;
     };
     return {
         MonadEff: MonadEff, 
-        liftEff: liftEff, 
-        monadEffEff: monadEffEff
+        liftEff: liftEff
     };
 })();
 var PS = PS || {};
@@ -1186,7 +1155,15 @@ function routeImpl(d,p,f){
 };
     
 function wrap0(f){
-  return function Wrap0(){return f();}
+  return function Wrap0(){
+    var _this = this;
+    var setRoute = function(route){
+      return function(){
+        _this.setRoute(route);
+      }
+    };
+    return f(setRoute)();
+  }
 };
     
 function wrap1(f){
@@ -1445,7 +1422,11 @@ function wrap2(f){
     };
     var routes0 = function (p) {
         return function (f) {
-            return route(p)(Prelude["<$>"](Data_Array.functorArray)(wrap0)(f));
+            return route(p)(Prelude["<$>"](Data_Array.functorArray)(function (r) {
+                return wrap0(function (set) {
+                    return runCallback(r)(set);
+                });
+            })(f));
         };
     };
     var route0 = function (p) {
@@ -1616,8 +1597,10 @@ function attachOnClickById(id, fn) {
     var main = function __do() {
         var _43 = Network_Routing_Client.runRouter(Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.param(Network_Routing_Client.exact("api")))(function (_42) {
             return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.param(Network_Routing_Client.regex("[0-9]+")))(function (_41) {
-                return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route0(Network_Routing_Client.empty)(Control_Monad_Eff_Class.liftEff(Control_Monad_Eff_Class.monadEffEff)(Debug_Trace.trace("root"))))(function () {
-                    return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route0(Network_Routing_Client["-/"](_42)(Network_Routing_Client.empty))(Control_Monad_Eff_Class.liftEff(Control_Monad_Eff_Class.monadEffEff)(Debug_Trace.trace("api"))))(function () {
+                return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route0(Network_Routing_Client.empty)(Control_Monad_Eff_Class.liftEff(Network_Routing_Client.monadEffCallback)(Debug_Trace.trace("root"))))(function () {
+                    return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route0(Network_Routing_Client["-/"](_42)(Network_Routing_Client.empty))(Prelude[">>="](Network_Routing_Client.bindCallback)(Control_Monad_Eff_Class.liftEff(Network_Routing_Client.monadEffCallback)(Debug_Trace.trace("api")))(function () {
+                        return Network_Routing_Client.setRoute("/");
+                    })))(function () {
                         return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route1(Network_Routing_Client["-/"](_42)(Network_Routing_Client["+/"](_41)(Network_Routing_Client.empty)))(function (n) {
                             return Prelude[">>="](Network_Routing_Client.bindCallback)(Network_Routing_Client.getSetRoute)(function (_40) {
                                 return Prelude[">>="](Network_Routing_Client.bindCallback)(Control_Monad_Eff_Class.liftEff(Network_Routing_Client.monadEffCallback)(Debug_Trace.trace("api number: " + n)))(function () {

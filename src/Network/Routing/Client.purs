@@ -291,15 +291,23 @@ route p f = do
 
 foreign import wrap0 """
 function wrap0(f){
-  return function Wrap0(){return f();}
-}""" :: forall eff z. Eff eff z -> Dummy
+  return function Wrap0(){
+    var _this = this;
+    var setRoute = function(route){
+      return function(){
+        _this.setRoute(route);
+      }
+    };
+    return f(setRoute)();
+  }
+}""" :: forall eff z. (SetRoute_ eff -> Eff eff z) -> Dummy
 
 -- | add routes which have no parameter
-routes0 :: forall eff. Pathes0 -> [Eff eff _] -> RoutingM eff Unit
-routes0 p f = route p (wrap0 <$> f)
+routes0 :: forall eff. Pathes0 -> [Callback eff Unit] -> RoutingM eff Unit
+routes0 p f = route p ((\r -> wrap0 $ \set -> runCallback r set) <$> f)
 
 -- | add route which have no parameter
-route0 :: forall eff. Pathes0 -> Eff eff _ -> RoutingM eff Unit
+route0 :: forall eff. Pathes0 -> Callback eff Unit -> RoutingM eff Unit
 route0 p f = routes0 p [f]
 
 foreign import wrap1 """

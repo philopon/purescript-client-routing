@@ -31,7 +31,9 @@ main = do
 
     -- no parameter route
     route0 empty $ liftEff $ trace "root"
-    route0 (api -/ empty) $ liftEff $ trace "api"
+    route0 (api -/ empty) $ do
+      liftEff $ trace "api"
+      setRoute "/"
 
     -- parametered route
     route1 (api -/ num +/ empty) $ \n -> do
