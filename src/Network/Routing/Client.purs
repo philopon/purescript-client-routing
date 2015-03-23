@@ -8,6 +8,7 @@ module Network.Routing.Client
   , Callback()
   , SetRoute()
   , setRoute
+  , getSetRoute
 
   , Z(), S(), Path(), Pathes()
   , Pathes0(), Pathes1(), Pathes2(), Pathes3()
@@ -189,6 +190,10 @@ function setRouteImpl(d, p){
 -- | convenient to redirect.
 setRoute :: String -> Callback _ Unit
 setRoute route = Callback $ \set -> set route
+
+-- | get SetRoute function in Callback Monad.
+getSetRoute :: forall eff. Callback (routing :: Routing | eff) (SetRoute eff)
+getSetRoute = Callback $ \set -> return set
 
 -- path piecies
 data Z
