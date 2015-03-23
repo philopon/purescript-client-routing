@@ -35,11 +35,12 @@ main = do
 
     -- parametered route
     route1 (api -/ num +/ empty) $ \n -> do
+      set <- getSetRoute
       liftEff $ trace $ "api number: " ++ n
       if n == "1"
-         then do
-           liftEff $ trace "redirect to /"
-           setRoute "/"
+         then liftEff $ do
+           trace "redirect to /"
+           set "/"
          else return unit
 
     route2 (api -/ exact "show" -/ num +/ any +/ empty) $ \i a -> do

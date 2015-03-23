@@ -1256,13 +1256,13 @@ function wrap2(f){
         return x;
     };
     var $minus$div = function (a) {
-        return function (_349) {
-            return Prelude[":"](unsafeCoerce(a))(_349);
+        return function (_350) {
+            return Prelude[":"](unsafeCoerce(a))(_350);
         };
     };
     var $plus$div = function (a) {
-        return function (_350) {
-            return Prelude[":"](unsafeCoerce(a))(unsafeCoerce(_350));
+        return function (_351) {
+            return Prelude[":"](unsafeCoerce(a))(unsafeCoerce(_351));
         };
     };
     var setRoute = function (route_1) {
@@ -1270,13 +1270,13 @@ function wrap2(f){
             return set(route_1);
         });
     };
-    var runCallback = function (_346) {
-        return _346;
+    var runCallback = function (_347) {
+        return _347;
     };
-    var runRouter$prime = function (_345) {
+    var runRouter$prime = function (_346) {
         return function __do() {
             var _33 = newRouter(Network_Routing_Client_Foreign.director)();
-            var _32 = _345({
+            var _32 = _346({
                 variableIndex: 0, 
                 routerInstance: _33, 
                 historyAPI: false, 
@@ -1314,23 +1314,23 @@ function wrap2(f){
         };
     };
     var regex = Regex.create;
-    var pathToString = function (_347) {
-        if (_347 instanceof Exact) {
-            return _347.value0;
+    var pathToString = function (_348) {
+        if (_348 instanceof Exact) {
+            return _348.value0;
         };
-        if (_347 instanceof Regex) {
-            return "(" + (_347.value0 + ")");
+        if (_348 instanceof Regex) {
+            return "(" + (_348.value0 + ")");
         };
-        if (_347 instanceof Param) {
-            return _347.value0;
+        if (_348 instanceof Param) {
+            return _348.value0;
         };
-        if (_347 instanceof Any) {
+        if (_348 instanceof Any) {
             return ":_";
         };
         throw new Error("Failed pattern match");
     };
-    var pathesToString = function (_348) {
-        return "/" + Data_String.joinWith("/")(Prelude["<$>"](Data_Array.functorArray)(pathToString)(_348));
+    var pathesToString = function (_349) {
+        return "/" + Data_String.joinWith("/")(Prelude["<$>"](Data_Array.functorArray)(pathToString)(_349));
     };
     var modifyState = function (f) {
         return RoutingM(function (s) {
@@ -1342,25 +1342,25 @@ function wrap2(f){
     };
     var notFound = function (m) {
         return modifyState(function (s) {
-            var _377 = {};
-            for (var _378 in s) {
-                if (s.hasOwnProperty(_378)) {
-                    _377[_378] = s[_378];
+            var _378 = {};
+            for (var _379 in s) {
+                if (s.hasOwnProperty(_379)) {
+                    _378[_379] = s[_379];
                 };
             };
-            _377.notFound = new Data_Maybe.Just(m);
-            return _377;
+            _378.notFound = new Data_Maybe.Just(m);
+            return _378;
         });
     };
     var succIndex = modifyState(function (s) {
-        var _379 = {};
-        for (var _380 in s) {
-            if (s.hasOwnProperty(_380)) {
-                _379[_380] = s[_380];
+        var _380 = {};
+        for (var _381 in s) {
+            if (s.hasOwnProperty(_381)) {
+                _380[_381] = s[_381];
             };
         };
-        _379.variableIndex = s.variableIndex + 1;
-        return _379;
+        _380.variableIndex = s.variableIndex + 1;
+        return _380;
     });
     var liftRoutingM = function (m) {
         return RoutingM(function (s) {
@@ -1379,11 +1379,14 @@ function wrap2(f){
             s: s
         });
     });
+    var getSetRoute = Callback(function (set) {
+        return Prelude["return"](Control_Monad_Eff.monadEff)(set);
+    });
     var functorRoutingM = new Prelude.Functor(function (f) {
-        return function (_351) {
+        return function (_352) {
             return RoutingM(function (s) {
                 return function __do() {
-                    var n = _351(s)();
+                    var n = _352(s)();
                     return {
                         a: f(n.a), 
                         s: n.s
@@ -1393,10 +1396,10 @@ function wrap2(f){
         };
     });
     var functorCallback = new Prelude.Functor(function (f) {
-        return function (_355) {
+        return function (_356) {
             return Callback(function (s) {
                 return function __do() {
-                    var n = _355(s)();
+                    var n = _356(s)();
                     return f(n);
                 };
             });
@@ -1404,12 +1407,12 @@ function wrap2(f){
     });
     var exact = Exact.create;
     var empty = [  ];
-    var applyRoutingM = new Prelude.Apply(function (_352) {
-        return function (_353) {
+    var applyRoutingM = new Prelude.Apply(function (_353) {
+        return function (_354) {
             return RoutingM(function (s) {
                 return function __do() {
-                    var _28 = _352(s)();
-                    var _27 = _353(_28.s)();
+                    var _28 = _353(s)();
+                    var _27 = _354(_28.s)();
                     return {
                         a: _28.a(_27.a), 
                         s: _27.s
@@ -1420,11 +1423,11 @@ function wrap2(f){
     }, function () {
         return functorRoutingM;
     });
-    var bindRoutingM = new Prelude.Bind(function (_354) {
+    var bindRoutingM = new Prelude.Bind(function (_355) {
         return function (k) {
             return RoutingM(function (s) {
                 return function __do() {
-                    var _30 = _354(s)();
+                    var _30 = _355(s)();
                     var _29 = k(_30.a);
                     return _29(_30.s)();
                 };
@@ -1484,12 +1487,12 @@ function wrap2(f){
             return routes2(p)([ f ]);
         };
     };
-    var applyCallback = new Prelude.Apply(function (_356) {
-        return function (_357) {
+    var applyCallback = new Prelude.Apply(function (_357) {
+        return function (_358) {
             return Callback(function (s) {
                 return function __do() {
-                    var _35 = _356(s)();
-                    var _34 = _357(s)();
+                    var _35 = _357(s)();
+                    var _34 = _358(s)();
                     return _35(_34);
                 };
             });
@@ -1497,11 +1500,11 @@ function wrap2(f){
     }, function () {
         return functorCallback;
     });
-    var bindCallback = new Prelude.Bind(function (_358) {
+    var bindCallback = new Prelude.Bind(function (_359) {
         return function (k) {
             return Callback(function (s) {
                 return function __do() {
-                    var _37 = _358(s)();
+                    var _37 = _359(s)();
                     var _36 = k(_37);
                     return _36(s)();
                 };
@@ -1538,7 +1541,7 @@ function wrap2(f){
     var applicativeCallback = new Prelude.Applicative(function () {
         return applyCallback;
     }, function (a) {
-        return Callback(function (_343) {
+        return Callback(function (_344) {
             return Prelude["return"](Control_Monad_Eff.monadEff)(a);
         });
     });
@@ -1550,7 +1553,7 @@ function wrap2(f){
     var monadEffCallback = new Control_Monad_Eff_Class.MonadEff(function () {
         return monadCallback;
     }, function (m) {
-        return Callback(function (_344) {
+        return Callback(function (_345) {
             return m;
         });
     });
@@ -1570,6 +1573,7 @@ function wrap2(f){
         exact: exact, 
         empty: empty, 
         notFound: notFound, 
+        getSetRoute: getSetRoute, 
         setRoute: setRoute, 
         "runRouter'": runRouter$prime, 
         runRouter: runRouter, 
@@ -1610,25 +1614,28 @@ function attachOnClickById(id, fn) {
   }
 };
     var main = function __do() {
-        var _42 = Network_Routing_Client.runRouter(Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.param(Network_Routing_Client.exact("api")))(function (_41) {
-            return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.param(Network_Routing_Client.regex("[0-9]+")))(function (_40) {
+        var _43 = Network_Routing_Client.runRouter(Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.param(Network_Routing_Client.exact("api")))(function (_42) {
+            return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.param(Network_Routing_Client.regex("[0-9]+")))(function (_41) {
                 return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route0(Network_Routing_Client.empty)(Control_Monad_Eff_Class.liftEff(Control_Monad_Eff_Class.monadEffEff)(Debug_Trace.trace("root"))))(function () {
-                    return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route0(Network_Routing_Client["-/"](_41)(Network_Routing_Client.empty))(Control_Monad_Eff_Class.liftEff(Control_Monad_Eff_Class.monadEffEff)(Debug_Trace.trace("api"))))(function () {
-                        return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route1(Network_Routing_Client["-/"](_41)(Network_Routing_Client["+/"](_40)(Network_Routing_Client.empty)))(function (n) {
-                            return Prelude[">>="](Network_Routing_Client.bindCallback)(Control_Monad_Eff_Class.liftEff(Network_Routing_Client.monadEffCallback)(Debug_Trace.trace("api number: " + n)))(function () {
-                                var _407 = n === "1";
-                                if (_407) {
-                                    return Prelude[">>="](Network_Routing_Client.bindCallback)(Control_Monad_Eff_Class.liftEff(Network_Routing_Client.monadEffCallback)(Debug_Trace.trace("redirect to /")))(function () {
-                                        return Network_Routing_Client.setRoute("/");
-                                    });
-                                };
-                                if (!_407) {
-                                    return Prelude["return"](Network_Routing_Client.monadCallback)(Prelude.unit);
-                                };
-                                throw new Error("Failed pattern match");
+                    return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route0(Network_Routing_Client["-/"](_42)(Network_Routing_Client.empty))(Control_Monad_Eff_Class.liftEff(Control_Monad_Eff_Class.monadEffEff)(Debug_Trace.trace("api"))))(function () {
+                        return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route1(Network_Routing_Client["-/"](_42)(Network_Routing_Client["+/"](_41)(Network_Routing_Client.empty)))(function (n) {
+                            return Prelude[">>="](Network_Routing_Client.bindCallback)(Network_Routing_Client.getSetRoute)(function (_40) {
+                                return Prelude[">>="](Network_Routing_Client.bindCallback)(Control_Monad_Eff_Class.liftEff(Network_Routing_Client.monadEffCallback)(Debug_Trace.trace("api number: " + n)))(function () {
+                                    var _409 = n === "1";
+                                    if (_409) {
+                                        return Control_Monad_Eff_Class.liftEff(Network_Routing_Client.monadEffCallback)(function __do() {
+                                            Debug_Trace.trace("redirect to /")();
+                                            return _40("/")();
+                                        });
+                                    };
+                                    if (!_409) {
+                                        return Prelude["return"](Network_Routing_Client.monadCallback)(Prelude.unit);
+                                    };
+                                    throw new Error("Failed pattern match");
+                                });
                             });
                         }))(function () {
-                            return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route2(Network_Routing_Client["-/"](_41)(Network_Routing_Client["-/"](Network_Routing_Client.exact("show"))(Network_Routing_Client["+/"](_40)(Network_Routing_Client["+/"](Network_Routing_Client.any)(Network_Routing_Client.empty)))))(function (i) {
+                            return Prelude[">>="](Network_Routing_Client.bindRoutingM)(Network_Routing_Client.route2(Network_Routing_Client["-/"](_42)(Network_Routing_Client["-/"](Network_Routing_Client.exact("show"))(Network_Routing_Client["+/"](_41)(Network_Routing_Client["+/"](Network_Routing_Client.any)(Network_Routing_Client.empty)))))(function (i) {
                                 return function (a) {
                                     return Control_Monad_Eff_Class.liftEff(Network_Routing_Client.monadEffCallback)(Debug_Trace.trace("api show: " + (i + (", " + a))));
                                 };
@@ -1643,12 +1650,12 @@ function attachOnClickById(id, fn) {
             });
         }))();
         return onDOMConentLoaded(function __do() {
-            attachOnClickById("root", _42("/"))();
-            attachOnClickById("api", _42("/api"))();
-            attachOnClickById("api-1", _42("/api/1"))();
-            attachOnClickById("api-12", _42("/api/12"))();
-            attachOnClickById("api-bad", _42("/api/bad"))();
-            return attachOnClickById("api-show", _42("/api/show/12/cat"))();
+            attachOnClickById("root", _43("/"))();
+            attachOnClickById("api", _43("/api"))();
+            attachOnClickById("api-1", _43("/api/1"))();
+            attachOnClickById("api-12", _43("/api/12"))();
+            attachOnClickById("api-bad", _43("/api/bad"))();
+            return attachOnClickById("api-show", _43("/api/show/12/cat"))();
         })();
     };
     return {

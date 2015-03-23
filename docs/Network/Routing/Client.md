@@ -177,6 +177,7 @@ convenient to redirect.
 getSetRoute :: forall eff. Callback (routing :: Routing | eff) (SetRoute eff)
 ```
 
+get SetRoute function in Callback Monad.
 
 #### `Z`
 
