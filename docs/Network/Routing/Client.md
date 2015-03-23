@@ -171,6 +171,13 @@ setRoute :: String -> Callback _ Unit
 set route in Callback monad.
 convenient to redirect.
 
+#### `getSetRoute`
+
+``` purescript
+getSetRoute :: forall eff. Callback (routing :: Routing | eff) (SetRoute eff)
+```
+
+
 #### `Z`
 
 ``` purescript
